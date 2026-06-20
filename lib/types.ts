@@ -1,13 +1,16 @@
-export type ItemDiff = "easy" | "hard" | "test";
+export type ItemDiff = "e" | "m" | "h"; // easy / medium / hard
+export type ItemType = "x" | "t"; // x = expression (calculation), t = textual (word problem)
 export type DayDiff = "easy" | "hard" | "mixed" | "test" | "rest";
 export type DayType = "home" | "trip";
 export type Trip = "Sea" | "Mountain" | "Valencia";
 
 export interface TaskItem {
-  p: string; // page label, e.g. "61" or "8–9"
-  r: string; // task range/list, e.g. "7–11"
+  p: string; // page label, e.g. "61"
+  r: string; // task range/list, e.g. "7-11"
   n: number; // number of tasks
-  d: ItemDiff;
+  d: ItemDiff; // per-task difficulty
+  t: ItemType; // per-task type (expression / textual)
+  test?: boolean; // true for the 6 review tests
 }
 
 export interface DayRec {
@@ -22,6 +25,7 @@ export interface DayRec {
   items: TaskItem[];
   count: number;
   diff: DayDiff;
+  types: ItemType[]; // which task types appear this day: ["x"], ["t"], or both
   label: string;
 }
 

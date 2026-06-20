@@ -20,7 +20,8 @@ export function dayDoneCount(d: DayRec, p: Progress): number {
 export function dayTasksDoneN(d: DayRec, p: Progress): number {
   if (d.items.length === 0) return 0;
   const done = p.tasks[d.date] ?? [];
-  return done.reduce((s, idx) => s + (d.items[idx]?.n ?? 0), 0);
+  // exclude the review tests from the task/XP count (counted separately)
+  return done.reduce((s, idx) => s + (d.items[idx]?.test ? 0 : d.items[idx]?.n ?? 0), 0);
 }
 
 /* ---------- levels & mascot ---------- */
@@ -63,7 +64,7 @@ export function computeStats(p: Progress): Stats {
     if (dayDone(d, p)) daysDone++;
     tasksDone += dayTasksDoneN(d, p);
     const done = d.items.length ? p.tasks[d.date] ?? [] : [];
-    testsDone += done.filter((idx) => d.items[idx]?.d === "test").length;
+    testsDone += done.filter((idx) => d.items[idx]?.test).length;
   }
   const stars = daysDone;
   const xp = tasksDone + daysDone * 3; // tasks + small per-day bonus

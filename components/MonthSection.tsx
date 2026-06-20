@@ -49,7 +49,7 @@ export function MonthSection({
       </div>
 
       <motion.div
-        className="grid grid-cols-7 auto-rows-[3.25rem] gap-1.5 sm:auto-rows-[4.25rem] sm:gap-2.5"
+        className="grid grid-cols-7 auto-rows-[3.25rem] gap-1.5 sm:auto-rows-[5.25rem] sm:gap-2.5"
         initial="hidden"
         animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.01 } } }}

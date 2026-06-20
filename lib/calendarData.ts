@@ -15,7 +15,7 @@ export const MONTHS = [
 export const TOTAL_DAYS = DAYS.length;
 export const TOTAL_TASKS = DAYS.reduce((s, d) => s + d.count, 0);
 export const TOTAL_TESTS = DAYS.reduce(
-  (s, d) => s + d.items.filter((i) => i.d === "test").length,
+  (s, d) => s + d.items.filter((i) => i.test).length,
   0,
 );
 
