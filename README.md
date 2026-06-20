@@ -24,9 +24,11 @@ Without Supabase keys it runs in **on-device** mode (progress saved in that brow
 3. **Settings → API**, copy the **Project URL** and the **anon public** key.
 4. Put them in `.env.local` (copy from `.env.local.example`):
    ```
-   NEXT_PUBLIC_SUPABASE_URL=...
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    ```
+   (Legacy projects can use `NEXT_PUBLIC_SUPABASE_ANON_KEY` with the "anon public" key instead.)
+   **Never** use the `sb_secret_…` / service_role key here — it would be exposed in the static bundle.
 5. (Optional live multi-device sync) **Database → Replication** → add `progress`.
 
 The anon key is **safe to ship** in a static site — Row Level Security limits it to that one row.
@@ -36,8 +38,8 @@ The anon key is **safe to ship** in a static site — Row Level Security limits 
 npm run build        # outputs ./out  (output: 'export')
 ```
 - Push this folder to GitHub → **Import** in Vercel (framework auto-detected: Next.js).
-- In Vercel **Project → Settings → Environment Variables**, add the two
-  `NEXT_PUBLIC_SUPABASE_*` vars, then deploy.
+- In Vercel **Project → Settings → Environment Variables**, add
+  `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, then deploy.
 - Or one-shot: `npx vercel --prod`.
 
 > It's a fully static export, so it also works on Netlify, GitHub Pages, or any static host —
