@@ -7,7 +7,6 @@ import type { DayRec, Progress } from "@/lib/types";
 import { DIFF, TRIP } from "@/lib/dayStyle";
 import { dayDone } from "@/lib/gamification";
 import { TripIcon } from "./TripIcon";
-import { TypeIcon, TYPE_LABEL } from "./TypeIcon";
 
 export function DayModal({
   day,
@@ -101,16 +100,6 @@ export function DayModal({
                 {doneSet.size}/{day.items.length} done
               </span>
             </div>
-            {!isFree && (
-              <div className="mb-2 flex items-center gap-3 text-[11px] font-semibold text-inksoft">
-                <span className="inline-flex items-center gap-1">
-                  <TypeIcon type="x" size={13} /> calculations
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <TypeIcon type="t" size={13} /> word problems
-                </span>
-              </div>
-            )}
             <ul className="flex flex-col gap-2">
               {day.items.map((it, idx) => {
                 const checked = doneSet.has(idx);
@@ -132,12 +121,7 @@ export function DayModal({
                       >
                         {checked && <Check size={16} strokeWidth={3.5} className="text-white" />}
                       </span>
-                      <span className="flex flex-1 items-center gap-2">
-                        {!it.test && (
-                          <span className="flex-none text-inksoft" title={TYPE_LABEL[it.t]} aria-label={TYPE_LABEL[it.t]}>
-                            <TypeIcon type={it.t} size={16} />
-                          </span>
-                        )}
+                      <span className="flex-1">
                         <span className={`font-display text-base font-bold ${checked ? "text-ink/60 line-through" : "text-ink"}`}>
                           {it.test ? it.r : `p.${it.p} #${it.r}`}
                         </span>

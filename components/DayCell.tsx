@@ -3,9 +3,8 @@
 import { motion } from "framer-motion";
 import { Check, Star, Sun } from "lucide-react";
 import type { DayRec } from "@/lib/types";
-import { DIFF, TRIP } from "@/lib/dayStyle";
-import { TripIcon } from "./TripIcon";
-import { TypeIcon } from "./TypeIcon";
+import { DIFF } from "@/lib/dayStyle";
+import { LocationIcon } from "./LocationIcon";
 
 export function DayCell({
   day,
@@ -41,9 +40,9 @@ export function DayCell({
         done ? "Done" : isFree ? "Free day" : `${day.count} tasks, ${s.label}`
       }. Open day.`}
     >
-      {/* ---------- MOBILE face (compact: number + colour + count) ---------- */}
+      {/* ---------- MOBILE face (compact: number, then location + count) ---------- */}
       <span
-        className="flex h-full w-full flex-col items-center justify-center gap-0.5 rounded-2xl sm:hidden"
+        className="flex h-full w-full flex-col items-center justify-center gap-1 rounded-2xl sm:hidden"
         style={{
           background: done ? s.color : s.soft,
           boxShadow: done ? `3px 4px 11px ${s.color}55` : `inset 0 0 0 1.5px ${s.ring}`,
@@ -55,25 +54,24 @@ export function DayCell({
         >
           {day.dom}
         </span>
-        {done ? (
-          <Check size={15} strokeWidth={3.5} className="text-white" />
-        ) : isFree ? (
-          <Sun size={13} strokeWidth={2.6} style={{ color: s.color }} />
-        ) : isTest ? (
-          <Star size={13} strokeWidth={2.4} style={{ color: s.color }} fill={s.color} />
-        ) : (
-          <span className="flex items-center gap-0.5" style={{ color: s.color }}>
-            {day.types.map((t) => (
-              <TypeIcon key={t} type={t} size={9} />
-            ))}
-            <span
-              className="tnum text-[11px] font-extrabold leading-none"
-              style={{ opacity: partial ? 1 : 0.85 }}
-            >
+        {/* location paired with the count / state, below the number */}
+        <span
+          className="flex items-center gap-1 leading-none"
+          style={{ color: done ? "#fff" : s.color }}
+        >
+          <LocationIcon trip={day.trip} size={10} />
+          {done ? (
+            <Check size={13} strokeWidth={3.5} />
+          ) : isFree ? (
+            <Sun size={12} strokeWidth={2.6} />
+          ) : isTest ? (
+            <Star size={12} strokeWidth={2.4} fill="currentColor" />
+          ) : (
+            <span className="tnum text-[11px] font-extrabold" style={{ opacity: partial ? 1 : 0.85 }}>
               {partial ? `${doneCount}/${units}` : day.count}
             </span>
-          </span>
-        )}
+          )}
+        </span>
       </span>
 
       {/* ---------- DESKTOP face (rich card) ---------- */}
@@ -88,47 +86,38 @@ export function DayCell({
           />
         )}
 
-        <span className="flex items-start justify-between pl-1.5">
+        <span className="flex items-start pl-1.5">
           <span className={`font-display text-lg font-bold leading-none ${done ? "text-white" : "text-ink"}`}>
             {day.dom}
           </span>
-          {day.trip ? (
-            <span style={{ color: done ? "rgba(255,255,255,.92)" : TRIP[day.trip].color }}>
-              <TripIcon trip={day.trip} size={15} />
-            </span>
-          ) : (
-            <span
-              className="mt-1 h-2.5 w-2.5 rounded-full"
-              style={{ background: done ? "rgba(255,255,255,.85)" : s.color }}
-            />
-          )}
         </span>
 
         <span className="mt-auto block pl-1.5">
           {done ? (
             <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-white">
-              <Check size={13} strokeWidth={3.5} /> {isFree ? "Rested" : "Done!"}
+              <LocationIcon trip={day.trip} size={13} /> {isFree ? "Rested" : "Done!"}
             </span>
           ) : isFree ? (
             <>
               <span className="text-[10px] font-extrabold uppercase tracking-wide" style={{ color: s.color }}>
                 Free
               </span>
-              <span className="block text-[11px] font-bold text-inksoft">rest &amp; play</span>
+              <span className="flex items-center gap-1 text-[11px] font-bold text-inksoft">
+                <span style={{ color: s.color }}>
+                  <LocationIcon trip={day.trip} size={13} />
+                </span>
+                rest &amp; play
+              </span>
             </>
           ) : (
             <>
-              <span className="flex items-center justify-between gap-1">
-                <span className="text-[10px] font-extrabold uppercase tracking-wide" style={{ color: s.color }}>
-                  {s.label}
-                </span>
-                <span className="flex items-center gap-0.5" style={{ color: s.color }}>
-                  {day.types.map((t) => (
-                    <TypeIcon key={t} type={t} size={12} />
-                  ))}
-                </span>
+              <span className="block text-[10px] font-extrabold uppercase tracking-wide" style={{ color: s.color }}>
+                {s.label}
               </span>
-              <span className="block text-[11px] font-bold text-inksoft">
+              <span className="flex items-center gap-1 text-[11px] font-bold text-inksoft">
+                <span style={{ color: s.color }}>
+                  <LocationIcon trip={day.trip} size={13} />
+                </span>
                 {partial ? `${doneCount}/${units} done` : `${day.count} ${day.count === 1 ? "task" : "tasks"}`}
               </span>
               {partial && (
