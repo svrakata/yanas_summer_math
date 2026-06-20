@@ -49,11 +49,10 @@ export function MonthSection({
       </div>
 
       <motion.div
-        className="grid grid-cols-7 gap-1.5 sm:gap-2"
+        className="grid grid-cols-7 auto-rows-[3.25rem] gap-1.5 sm:auto-rows-[4.25rem] sm:gap-2.5"
         initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        variants={{ visible: { transition: { staggerChildren: 0.012 } } }}
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.01 } } }}
       >
         {Array.from({ length: offset }).map((_, i) => (
           <div key={"b" + i} />

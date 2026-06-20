@@ -86,7 +86,7 @@ export default function Home() {
   }
 
   return (
-    <main className="safe-x mx-auto flex max-w-5xl flex-col gap-5 px-3 py-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:gap-6 sm:px-4 sm:py-10">
+    <main className="mx-auto flex max-w-5xl flex-col gap-4 py-6 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:gap-6 sm:py-10 sm:pl-[max(1.5rem,env(safe-area-inset-left))] sm:pr-[max(1.5rem,env(safe-area-inset-right))]">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-4xl font-extrabold leading-none text-ink sm:text-5xl">

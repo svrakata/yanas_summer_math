@@ -86,13 +86,8 @@ button {
   touch-action: manipulation; /* kill 300ms tap delay + double-tap zoom on iOS */
 }
 
-/* iOS safe areas (Dynamic Island top, home indicator bottom) */
-.safe-top { padding-top: env(safe-area-inset-top); }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-.safe-x {
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
+/* iOS safe areas — apply via Tailwind arbitrary max(base, env(...)) utilities in JSX,
+   so base padding is never collapsed to 0 when there's no notch inset. */
 
 /* tabular numbers for counters so they don't jump */
 .tnum {
