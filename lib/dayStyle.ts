@@ -6,9 +6,9 @@ export const DIFF: Record<
 > = {
   // Pastel, well-separated hues. `color` = medium tone (white-readable, used on
   // completed cells); `soft` = pastel cell background; `ring` = subtle border.
-  easy: { label: "Easy", color: "#34a978", soft: "#e8f7ef", ring: "#a9e2c5" }, // green
-  hard: { label: "Hard", color: "#4e8fd0", soft: "#e7f1fc", ring: "#aed2f1" }, // blue
-  mixed: { label: "Mixed", color: "#a25fc9", soft: "#f4eafb", ring: "#dbbfee" }, // purple
+  easy: { label: "Easy", color: "#34a978", soft: "#e8f7ef", ring: "#a9e2c5" }, // green — light day
+  medium: { label: "Medium", color: "#a25fc9", soft: "#f4eafb", ring: "#dbbfee" }, // purple — typical day
+  hard: { label: "Hard", color: "#4e8fd0", soft: "#e7f1fc", ring: "#aed2f1" }, // blue — busy day
   test: { label: "Test", color: "#d49a3d", soft: "#fbf2dd", ring: "#f1d399" }, // amber
   rest: { label: "Free", color: "#8693a8", soft: "#eef1f7", ring: "#ccd4e1" }, // slate
 };

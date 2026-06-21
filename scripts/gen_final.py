@@ -143,13 +143,16 @@ for dt in sorted(days):
     diffs={it["d"] for it in items}
     types={it["t"] for it in items}
     istest=any(it.get("test") for it in items)
+    rec["count"]=sum(it["n"] for it in items if not it.get("test"))
+    c=rec["count"]
+    # Day difficulty comes from the WORKLOAD (how many tasks that day),
+    # not the per-task signature: more tasks = harder.
     if istest: diff="test"
     elif not items: diff="rest"
-    elif diffs=={"e"}: diff="easy"
-    elif diffs=={"h"}: diff="hard"
-    else: diff="mixed"
+    elif c<=4: diff="easy"      # light day
+    elif c<=7: diff="medium"    # typical day
+    else: diff="hard"           # busy day (8+)
     rec["diff"]=diff
-    rec["count"]=sum(it["n"] for it in items if not it.get("test"))
     rec["types"]=[t for t in ("x","t") if t in types]  # x=expression, t=textual
     rec["label"]=" · ".join((it["r"] if it.get("test") else f"p.{it['p']} #{it['r']}") for it in items)
     rec.pop("kind",None)
