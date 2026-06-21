@@ -10,6 +10,10 @@ paper version, but alive.
 - **Storage:** Supabase (syncs across browsers & machines). Falls back to on-device
   `localStorage` automatically if no keys are set.
 
+> **Docs:** [`CLAUDE.md`](CLAUDE.md) (working in this repo — commands, conventions, gotchas) ·
+> [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (data pipeline, model, components) ·
+> [`docs/CHANGELOG.md`](docs/CHANGELOG.md) (decisions, data corrections, history).
+
 ## Run locally
 ```bash
 npm install
