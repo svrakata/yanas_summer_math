@@ -3,6 +3,13 @@
 A running record of what was built and why, plus the data corrections (the schedule was read from a
 handwritten note, so several values were fixed along the way). Newest first.
 
+## Travel days (Jul 4, 19, 22, 29)
+These four dates are **in transit** — no maths possible. They render as a `travel` day-state
+(terracotta, ✈️ "on the road", marked done like a free day) and keep their Sea/Mountain trip tag.
+Their 18 tasks were **pulled and redistributed** across the remaining task days of the same period,
+keeping each task's original easy/medium/hard difficulty — the other days just scale up to absorb them
+(`TRAVEL` set in `gen_final.py`; days are excluded from `light_days`/`home_days`). Total stays 358.
+
 ## Schedule — current source of truth
 
 5 fortnightly periods, **358 tasks + 6 tests**, inclusive ranges (`end − start + 1`).

@@ -11,6 +11,7 @@ export const DIFF: Record<
   hard: { label: "Hard", color: "#4e8fd0", soft: "#e7f1fc", ring: "#aed2f1" }, // blue — busy day
   test: { label: "Test", color: "#d49a3d", soft: "#fbf2dd", ring: "#f1d399" }, // amber
   rest: { label: "Free", color: "#8693a8", soft: "#eef1f7", ring: "#ccd4e1" }, // slate
+  travel: { label: "Travel", color: "#e07a5f", soft: "#fceae3", ring: "#f3c4b2" }, // terracotta — in transit, no tasks
 };
 
 export const TRIP: Record<

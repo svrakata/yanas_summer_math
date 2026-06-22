@@ -40,6 +40,10 @@ Key modules:
 - **Day difficulty = WORKLOAD, not task type.** A day's colour comes from its task *count*
   (1–4 easy, 5–7 medium, 8+ hard), computed in `gen_final.py`. Per-task difficulty (`d: e/m/h`) only
   decides *where* a task lands (light tasks → trip days); it is not displayed.
+- **Travel days** (the `TRAVEL` set in `gen_final.py`) are in-transit days with **no tasks**: they get
+  `diff="travel"`, are excluded from `light_days`/`home_days`, and their tasks redistribute onto the
+  rest of the same period. They mark done via `freeDone` like a free day. `DayDiff` includes `"travel"`,
+  so `DIFF` in `lib/dayStyle.ts` must keep a `travel` entry (the exhaustive Record won't compile otherwise).
 - **Don't hand-edit `data/days.json`** for schedule changes — edit `scripts/gen_final.py` and rerun,
   so it stays reproducible. (Small one-off field fixes are fine if you also update the generator.)
 - **Supabase keys:** only the **publishable** key (`sb_publishable_…`) ever goes client-side, in

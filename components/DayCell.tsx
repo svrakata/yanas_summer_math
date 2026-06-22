@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Star, Sun } from "lucide-react";
+import { Check, Plane, Star, Sun } from "lucide-react";
 import type { DayRec } from "@/lib/types";
 import { DIFF } from "@/lib/dayStyle";
 import { LocationIcon } from "./LocationIcon";
@@ -21,6 +21,7 @@ export function DayCell({
 }) {
   const s = DIFF[day.diff];
   const isFree = day.diff === "rest";
+  const isTravel = day.diff === "travel";
   const isTest = day.diff === "test";
   const partial = doneCount > 0 && !done;
   const units = day.items.length || 1;
@@ -37,7 +38,7 @@ export function DayCell({
       transition={{ type: "spring", stiffness: 420, damping: 26 }}
       className="relative h-full w-full rounded-2xl outline-none focus-visible:ring-4 focus-visible:ring-indigo/40"
       aria-label={`${day.dow} ${day.dom} ${day.month}. ${
-        done ? "Done" : isFree ? "Free day" : `${day.count} tasks, ${s.label}`
+        done ? "Done" : isFree ? "Free day" : isTravel ? "Travel day" : `${day.count} tasks, ${s.label}`
       }. Open day.`}
     >
       {/* ---------- MOBILE face (compact: number, then location + count) ---------- */}
@@ -64,6 +65,8 @@ export function DayCell({
             <Check size={13} strokeWidth={3.5} />
           ) : isFree ? (
             <Sun size={12} strokeWidth={2.6} />
+          ) : isTravel ? (
+            <Plane size={12} strokeWidth={2.6} />
           ) : isTest ? (
             <Star size={12} strokeWidth={2.4} fill="currentColor" />
           ) : (
@@ -95,8 +98,20 @@ export function DayCell({
         <span className="mt-auto block pl-1.5">
           {done ? (
             <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-white">
-              <LocationIcon trip={day.trip} size={13} /> {isFree ? "Rested" : "Done!"}
+              <LocationIcon trip={day.trip} size={13} /> {isTravel ? "Travelled" : isFree ? "Rested" : "Done!"}
             </span>
+          ) : isTravel ? (
+            <>
+              <span className="text-[10px] font-extrabold uppercase tracking-wide" style={{ color: s.color }}>
+                Travel
+              </span>
+              <span className="flex items-center gap-1 text-[11px] font-bold text-inksoft">
+                <span style={{ color: s.color }}>
+                  <LocationIcon trip={day.trip} size={13} />
+                </span>
+                on the road
+              </span>
+            </>
           ) : isFree ? (
             <>
               <span className="text-[10px] font-extrabold uppercase tracking-wide" style={{ color: s.color }}>

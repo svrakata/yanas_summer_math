@@ -16,6 +16,11 @@ addhol(date(2026,7,19), date(2026,7,22), "Mountain", "light")
 addhol(date(2026,7,29), date(2026,8,2),  "Mountain", "light")
 addhol(date(2026,8,11), date(2026,8,15), "Valencia", "free")  # 11-15 only, all free
 
+# Travel days (July): in transit, NO maths possible. Their tasks are pulled and
+# redistributed across the remaining task days of the same period (kept at their
+# original easy/medium/hard difficulty — the other days just scale up to absorb them).
+TRAVEL = {date(2026,7,4), date(2026,7,19), date(2026,7,22), date(2026,7,29)}
+
 PERIODS = [("P1",date(2026,6,20),date(2026,6,30)),
            ("P2",date(2026,7,1), date(2026,7,15)),
            ("P3",date(2026,7,16),date(2026,7,31)),
@@ -101,11 +106,12 @@ while d<=date(2026,8,31):
              "period":period_of(d),"trip":name,
              "type":"trip" if name else "home",
              "kind":kind,  # light / free / None
+             "travel":d in TRAVEL,  # transit day: gets no tasks
              "items":[]}
     d+=timedelta(days=1)
 
-def home_days(p):  return sorted(x for x in days if days[x]["period"]==p and days[x]["trip"] is None)
-def light_days(p): return sorted(x for x in days if days[x]["period"]==p and days[x]["kind"]=="light")
+def home_days(p):  return sorted(x for x in days if days[x]["period"]==p and days[x]["trip"] is None and not days[x]["travel"])
+def light_days(p): return sorted(x for x in days if days[x]["period"]==p and days[x]["kind"]=="light" and not days[x]["travel"])
 def put(day,pc): days[day]["items"].append(pc)
 
 def place(pieces, daylist):
@@ -147,7 +153,8 @@ for dt in sorted(days):
     c=rec["count"]
     # Day difficulty comes from the WORKLOAD (how many tasks that day),
     # not the per-task signature: more tasks = harder.
-    if istest: diff="test"
+    if rec["travel"]: diff="travel"  # transit day — no tasks
+    elif istest: diff="test"
     elif not items: diff="rest"
     elif c<=4: diff="easy"      # light day
     elif c<=7: diff="medium"    # typical day
@@ -156,6 +163,7 @@ for dt in sorted(days):
     rec["types"]=[t for t in ("x","t") if t in types]  # x=expression, t=textual
     rec["label"]=" · ".join((it["r"] if it.get("test") else f"p.{it['p']} #{it['r']}") for it in items)
     rec.pop("kind",None)
+    rec.pop("travel",None)
     out.append(rec)
 
 # ---------- meta ----------

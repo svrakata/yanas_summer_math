@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, X, Sun, Home } from "lucide-react";
+import { Check, X, Sun, Home, Plane } from "lucide-react";
 import type { DayRec, Progress } from "@/lib/types";
 import { DIFF, TRIP } from "@/lib/dayStyle";
 import { dayDone } from "@/lib/gamification";
@@ -24,7 +24,8 @@ export function DayModal({
   const s = DIFF[day.diff];
   const doneSet = new Set(progress.tasks[day.date] ?? []);
   const allDone = dayDone(day, progress);
-  const isFree = day.items.length === 0;
+  const isTravel = day.diff === "travel";
+  const isFree = day.items.length === 0 && !isTravel;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -86,7 +87,13 @@ export function DayModal({
           )}
         </div>
 
-        {isFree ? (
+        {isTravel ? (
+          <div className="mt-5 rounded-2xl bg-cream/70 p-5 text-center">
+            <Plane size={40} className="mx-auto" style={{ color: s.color }} strokeWidth={2.4} />
+            <p className="mt-2 font-display text-xl font-bold text-ink">Travel day!</p>
+            <p className="text-sm font-semibold text-inksoft">On the road today — no maths. ✈️</p>
+          </div>
+        ) : isFree ? (
           <div className="mt-5 rounded-2xl bg-cream/70 p-5 text-center">
             <Sun size={40} className="mx-auto text-gold" strokeWidth={2.4} />
             <p className="mt-2 font-display text-xl font-bold text-ink">Free day!</p>
@@ -146,7 +153,12 @@ export function DayModal({
         >
           {allDone ? (
             <>
-              <Check size={20} strokeWidth={3} /> {isFree ? "Rested!" : "Day complete!"} (tap to undo)
+              <Check size={20} strokeWidth={3} />{" "}
+              {isTravel ? "Safe travels!" : isFree ? "Rested!" : "Day complete!"} (tap to undo)
+            </>
+          ) : isTravel ? (
+            <>
+              <Plane size={20} strokeWidth={2.6} /> I travelled today
             </>
           ) : isFree ? (
             <>
