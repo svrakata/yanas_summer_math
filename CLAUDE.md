@@ -24,8 +24,11 @@ There are no tests and no lint step wired up. Verify changes by building and eye
 `scripts/gen_final.py` → **`data/days.json`** (the schedule, the single source of truth for the app)
 → imported by `lib/calendarData.ts` → rendered by `app/page.tsx` + `components/*`. Progress lives in
 Supabase (one shared row `id='yana'`, no login) with a localStorage cache; `lib/useProgress.ts` is the
-hook that ties it together. All derived stats (stars, XP, level, streak, badges) are computed
-client-side in `lib/gamification.ts` — nothing is stored but the raw completion map.
+hook that ties it together. Derived stats (stars, XP, level, streak) are computed client-side in
+`lib/gamification.ts` from the raw completion map. The **earned-badge set is persisted** too
+(`Progress.badges`): badges are sticky achievements — once earned they never un-earn, even if you
+later un-complete the day that earned them. `app/page.tsx` locks newly-earned badges in via
+`recordBadges`; `evalBadges` unions the persisted set with the currently-derived status.
 
 Key modules:
 - `lib/types.ts` — data shapes (`DayRec`, `TaskItem`, `Progress`).

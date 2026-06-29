@@ -94,7 +94,18 @@ export function useProgress() {
     [commit],
   );
 
+  const recordBadges = useCallback(
+    (ids: string[]) => {
+      const cur = latest.current;
+      const have = new Set(cur.badges ?? []);
+      const add = ids.filter((id) => !have.has(id));
+      if (add.length === 0) return;
+      commit({ ...cur, badges: [...(cur.badges ?? []), ...add] });
+    },
+    [commit],
+  );
+
   const reset = useCallback(() => commit(emptyProgress()), [commit]);
 
-  return { progress, status, ready, toggleTask, setDayComplete, reset, cloudEnabled };
+  return { progress, status, ready, toggleTask, setDayComplete, reset, recordBadges, cloudEnabled };
 }

@@ -51,6 +51,7 @@ export interface Stats {
   xpForLevel: number; // span of current level (or remaining at max)
   nextLevelName: string | null;
   streak: number;
+  bestStreak: number;
   pctDays: number;
   pctTasks: number;
   perMonth: { mi: number; name: string; done: number; total: number; pct: number }[];
@@ -98,6 +99,7 @@ export function computeStats(p: Progress): Stats {
     xpForLevel,
     nextLevelName: next ? next.name : null,
     streak: computeStreak(p),
+    bestStreak: longestStreak(p),
     pctDays: daysDone / TOTAL_DAYS,
     pctTasks: TOTAL_TASKS ? tasksDone / TOTAL_TASKS : 0,
     perMonth,
@@ -118,6 +120,28 @@ export function computeStreak(p: Progress): number {
   return streak;
 }
 
+/**
+ * Longest run of consecutive completed days anywhere in the calendar — the basis
+ * for the streak *badges* (achievements). Unlike `computeStreak` this isn't anchored
+ * to today, so an earned streak badge stays earned: completing days only grows the
+ * best run, it never resets it just because today isn't ticked yet.
+ * Rest/free/travel days count only when actually marked done, so an untouched
+ * travel block can't hand out a streak for free.
+ */
+export function longestStreak(p: Progress): number {
+  let best = 0;
+  let run = 0;
+  for (const d of DAYS) {
+    if (dayDone(d, p)) {
+      run++;
+      if (run > best) best = run;
+    } else {
+      run = 0;
+    }
+  }
+  return best;
+}
+
 /* ---------- badges ---------- */
 export interface Badge {
   id: string;
@@ -134,10 +158,11 @@ function monthDone(mi: number, p: Progress) {
 export function evalBadges(p: Progress, s: Stats): Badge[] {
   const tripTasks = DAYS.filter((d) => d.type === "trip");
   const tripDone = tripTasks.length > 0 && tripTasks.every((d) => dayDone(d, p));
-  return [
+  const sticky = new Set(p.badges ?? []);
+  const badges: Badge[] = [
     { id: "first", name: "First Steps", desc: "Finish your first day", icon: "footprints", earned: s.daysDone >= 1 },
-    { id: "fire", name: "On Fire", desc: "3-day streak", icon: "flame", earned: s.streak >= 3 },
-    { id: "week", name: "Week Warrior", desc: "7-day streak", icon: "swords", earned: s.streak >= 7 },
+    { id: "fire", name: "On Fire", desc: "3-day streak", icon: "flame", earned: s.bestStreak >= 3 },
+    { id: "week", name: "Week Warrior", desc: "7-day streak", icon: "swords", earned: s.bestStreak >= 7 },
     { id: "century", name: "Century", desc: "100 tasks solved", icon: "target", earned: s.tasksDone >= 100 },
     { id: "june", name: "June Hero", desc: "Finish all of June", icon: "sun", earned: monthDone(6, p) },
     { id: "july", name: "July Slayer", desc: "Beat the July hump", icon: "mountain-snow", earned: monthDone(7, p) },
@@ -146,4 +171,15 @@ export function evalBadges(p: Progress, s: Stats): Badge[] {
     { id: "tests", name: "Test Ace", desc: "Ace all 6 review tests", icon: "graduation-cap", earned: s.totalTests > 0 && s.testsDone >= s.totalTests },
     { id: "champion", name: "Champion", desc: "Finish the whole summer", icon: "crown", earned: s.daysDone >= s.totalDays },
   ];
+  // Once earned, always earned: union the currently-derived status with the
+  // persisted set so un-completing a day can never take a badge back.
+  return badges.map((b) => (b.earned || sticky.has(b.id) ? { ...b, earned: true } : b));
+}
+
+/** Badge ids that are derived-earned right now but not yet persisted in `p.badges`. */
+export function unrecordedBadges(p: Progress, s: Stats): string[] {
+  const sticky = new Set(p.badges ?? []);
+  return evalBadges(p, s)
+    .filter((b) => b.earned && !sticky.has(b.id))
+    .map((b) => b.id);
 }

@@ -5,7 +5,7 @@ const KEY = "yana-summer-maths-v1";
 export const cloudEnabled = !!supabase;
 
 export function emptyProgress(): Progress {
-  return { tasks: {}, freeDone: {}, updatedAt: new Date(0).toISOString() };
+  return { tasks: {}, freeDone: {}, badges: [], updatedAt: new Date(0).toISOString() };
 }
 
 export function loadLocal(): Progress | null {

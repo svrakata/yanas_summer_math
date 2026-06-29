@@ -20,7 +20,7 @@ interface Toast {
 }
 
 export default function Home() {
-  const { progress, status, ready, toggleTask, setDayComplete, reset } = useProgress();
+  const { progress, status, ready, toggleTask, setDayComplete, reset, recordBadges } = useProgress();
   const stats = useMemo(() => computeStats(progress), [progress]);
   const badges = useMemo(() => evalBadges(progress, stats), [progress, stats]);
   const today = todayISO();
@@ -80,6 +80,15 @@ export default function Home() {
     });
     badgeRef.current = new Set(nowBadges);
   }, [progress, ready, stats, badges]);
+
+  // Persist newly earned badges so they stay earned forever (sticky achievements).
+  useEffect(() => {
+    if (!ready) return;
+    const unrecorded = badges
+      .filter((b) => b.earned && !(progress.badges ?? []).includes(b.id))
+      .map((b) => b.id);
+    if (unrecorded.length > 0) recordBadges(unrecorded);
+  }, [ready, badges, progress, recordBadges]);
 
   function handleReset() {
     if (window.confirm("Reset all of Yana's progress? This can't be undone.")) reset();

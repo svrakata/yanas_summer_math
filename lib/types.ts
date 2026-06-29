@@ -43,5 +43,7 @@ export interface Progress {
   tasks: Record<string, number[]>;
   /** dateISO -> true for completed "free"/rest days (no task items) */
   freeDone: Record<string, boolean>;
+  /** ids of badges ever earned — sticky, so achievements never un-earn themselves */
+  badges: string[];
   updatedAt: string; // ISO timestamp
 }
