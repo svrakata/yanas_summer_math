@@ -19,7 +19,7 @@ addhol(date(2026,8,11), date(2026,8,15), "Valencia", "free")  # 11-15 only, all 
 # Travel days: in transit, NO maths possible. Their tasks are pulled and
 # redistributed across the remaining task days of the same period (kept at their
 # original easy/medium/hard difficulty — the other days just scale up to absorb them).
-TRAVEL = {date(2026,7,4), date(2026,7,19), date(2026,7,22), date(2026,7,29),
+TRAVEL = {date(2026,7,4), date(2026,7,11), date(2026,7,19), date(2026,7,22), date(2026,7,29),
           date(2026,8,2), date(2026,8,11), date(2026,8,15)}
 
 PERIODS = [("P1",date(2026,6,20),date(2026,6,30)),
