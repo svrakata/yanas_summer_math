@@ -1,6 +1,6 @@
 export type ItemDiff = "e" | "m" | "h"; // easy / medium / hard
 export type ItemType = "x" | "t"; // x = expression (calculation), t = textual (word problem)
-export type DayDiff = "easy" | "medium" | "hard" | "test" | "rest" | "travel";
+export type DayDiff = "easy" | "medium" | "hard" | "test" | "rest" | "travel" | "postponed";
 export type DayType = "home" | "trip";
 export type Trip = "Sea" | "Mountain" | "Valencia";
 
@@ -27,6 +27,12 @@ export interface DayRec {
   diff: DayDiff;
   types: ItemType[]; // which task types appear this day: ["x"], ["t"], or both
   label: string;
+}
+
+/** A task pulled off a Sea-trip day, waiting to be rescheduled into August. */
+export interface PostponedTask extends TaskItem {
+  from: string; // original ISO date it was scheduled on
+  dow: string; // that day's weekday label
 }
 
 export interface PeriodMeta {

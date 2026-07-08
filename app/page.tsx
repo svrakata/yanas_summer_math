@@ -9,6 +9,9 @@ import { computeStats, evalBadges, dayDone } from "@/lib/gamification";
 import { useProgress } from "@/lib/useProgress";
 import { burst, bigBurst } from "@/lib/confetti";
 import { HeroHud } from "@/components/HeroHud";
+import { BeachBanner } from "@/components/BeachBanner";
+import { PostponedPanel } from "@/components/PostponedPanel";
+import { isBeachTime } from "@/lib/beach";
 import { AchievementShelf } from "@/components/AchievementShelf";
 import { MonthSection } from "@/components/MonthSection";
 import { DayModal } from "@/components/DayModal";
@@ -106,8 +109,11 @@ export default function Home() {
         <SyncBadge status={status} />
       </header>
 
+      {isBeachTime(today) && <BeachBanner />}
+
       <HeroHud stats={stats} />
       <AchievementShelf badges={badges} />
+      <PostponedPanel />
 
       {MONTHS.map((m) => (
         <MonthSection

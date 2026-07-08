@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Flame, ListChecks } from "lucide-react";
+import { Star, Flame, ListChecks, Umbrella } from "lucide-react";
 import type { Stats } from "@/lib/gamification";
+import { isBeachTime } from "@/lib/beach";
+import { todayISO } from "@/lib/calendarData";
 import { Mascot } from "./Mascot";
 import { ProgressRing } from "./ProgressRing";
 import { Counter } from "./Counter";
@@ -35,6 +37,7 @@ function StatChip({
 
 export function HeroHud({ stats }: { stats: Stats }) {
   const xpPct = Math.max(0, Math.min(1, stats.xpIntoLevel / stats.xpForLevel));
+  const beach = isBeachTime(todayISO());
   return (
     <div className="clay p-5 sm:p-7">
       <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-center lg:gap-8">
@@ -77,7 +80,12 @@ export function HeroHud({ stats }: { stats: Stats }) {
         {/* stat chips */}
         <div className="grid w-full grid-cols-3 gap-2.5 lg:ml-auto lg:w-auto lg:grid-cols-1">
           <StatChip icon={<Star size={18} strokeWidth={2.6} />} value={stats.stars} label="stars" color="#d98613" />
-          <StatChip icon={<Flame size={18} strokeWidth={2.6} />} value={stats.streak} label="day streak" color="#ff7a3d" />
+          <StatChip
+            icon={beach ? <Umbrella size={18} strokeWidth={2.6} /> : <Flame size={18} strokeWidth={2.6} />}
+            value={stats.streak}
+            label={beach ? "streak · paused" : "day streak"}
+            color={beach ? "#2ea6d6" : "#ff7a3d"}
+          />
           <StatChip icon={<ListChecks size={18} strokeWidth={2.6} />} value={stats.tasksDone} label="tasks" color="#16a36a" />
         </div>
       </div>

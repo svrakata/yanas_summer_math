@@ -22,6 +22,12 @@ addhol(date(2026,8,11), date(2026,8,15), "Valencia", "free")  # 11-15 only, all 
 TRAVEL = {date(2026,7,4), date(2026,7,11), date(2026,7,19), date(2026,7,22), date(2026,7,29),
           date(2026,8,2), date(2026,8,11), date(2026,8,15)}
 
+# Sea-trip task days whose work is POSTPONED to August. Their tasks are pulled
+# into a backlog (data.postponed) to be rescheduled BY HAND with Yana — NOT
+# auto-distributed. The days themselves become free "to-do" markers (diff=postponed).
+POSTPONE = [date(2026,7,5), date(2026,7,6), date(2026,7,7),
+            date(2026,7,8), date(2026,7,9), date(2026,7,10)]
+
 PERIODS = [("P1",date(2026,6,20),date(2026,6,30)),
            ("P2",date(2026,7,1), date(2026,7,15)),
            ("P3",date(2026,7,16),date(2026,7,31)),
@@ -142,6 +148,14 @@ test_days=[date(2026,8,20),date(2026,8,22),date(2026,8,24),date(2026,8,26),date(
 for td,(pg,r,d,t) in zip(test_days,TESTS):
     put(td,{"p":pg,"r":r,"n":1,"d":d,"t":t,"test":True})
 
+# ---------- pull Sea-trip tasks into the August backlog (held, not distributed) ----------
+postponed=[]
+for dt in POSTPONE:
+    for it in days[dt]["items"]:
+        postponed.append({**it, "from": days[dt]["date"], "dow": days[dt]["dow"]})
+    days[dt]["items"]=[]
+    days[dt]["postpone"]=True
+
 # ---------- finalize per-day fields ----------
 out=[]
 for dt in sorted(days):
@@ -155,6 +169,7 @@ for dt in sorted(days):
     # Day difficulty comes from the WORKLOAD (how many tasks that day),
     # not the per-task signature: more tasks = harder.
     if rec["travel"]: diff="travel"  # transit day — no tasks
+    elif rec.get("postpone"): diff="postponed"  # Sea-trip work moved to August backlog
     elif istest: diff="test"
     elif not items: diff="rest"
     elif c<=4: diff="easy"      # light day
@@ -165,6 +180,7 @@ for dt in sorted(days):
     rec["label"]=" · ".join((it["r"] if it.get("test") else f"p.{it['p']} #{it['r']}") for it in items)
     rec.pop("kind",None)
     rec.pop("travel",None)
+    rec.pop("postpone",None)
     out.append(rec)
 
 # ---------- meta ----------
@@ -176,11 +192,12 @@ for n,s,e in PERIODS:
                  "trip":sum(1 for x in dd if x["type"]=="trip"),
                  "tasks":sum(x["count"] for x in dd)})
 
-json.dump({"days":out,"meta":meta}, open("data/days.json","w"), ensure_ascii=False)
+json.dump({"days":out,"meta":meta,"postponed":postponed}, open("data/days.json","w"), ensure_ascii=False)
 
 # ---------- report ----------
 tot=sum(x["count"] for x in out); tests=sum(1 for x in out if x["diff"]=="test")
-print(f"TOTAL tasks={tot}  tests={tests}  (expect 358 + 6)")
+pcount=sum(p["n"] for p in postponed)
+print(f"TOTAL active tasks={tot}  tests={tests}  postponed(Sea→Aug)={pcount} over {len(POSTPONE)} days  (active+postponed={tot+pcount}, expect 358)")
 for n,s,e in PERIODS:
     dd=[x for x in out if x["period"]==n]
     hc=[x["count"] for x in dd if x["type"]=="home"]

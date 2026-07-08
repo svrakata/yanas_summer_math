@@ -1,10 +1,12 @@
 import raw from "@/data/days.json";
-import type { DayRec, PeriodMeta } from "./types";
+import type { DayRec, PeriodMeta, PostponedTask } from "./types";
 
-const data = raw as { days: DayRec[]; meta: PeriodMeta[] };
+const data = raw as { days: DayRec[]; meta: PeriodMeta[]; postponed?: PostponedTask[] };
 
 export const DAYS: DayRec[] = data.days;
 export const META: PeriodMeta[] = data.meta;
+/** Sea-trip tasks held for manual rescheduling into August (with Yana). */
+export const POSTPONED: PostponedTask[] = data.postponed ?? [];
 
 export const MONTHS = [
   { mi: 6, name: "June" },

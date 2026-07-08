@@ -12,6 +12,7 @@ export const DIFF: Record<
   test: { label: "Test", color: "#d49a3d", soft: "#fbf2dd", ring: "#f1d399" }, // amber
   rest: { label: "Free", color: "#8693a8", soft: "#eef1f7", ring: "#ccd4e1" }, // slate
   travel: { label: "Travel", color: "#e07a5f", soft: "#fceae3", ring: "#f3c4b2" }, // terracotta — in transit, no tasks
+  postponed: { label: "August", color: "#2fa8a0", soft: "#e2f5f2", ring: "#a9e3dc" }, // teal — Sea-trip work saved for August
 };
 
 export const TRIP: Record<

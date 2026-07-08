@@ -7,6 +7,7 @@ import {
   todayISO,
 } from "./calendarData";
 import type { DayRec, Progress } from "./types";
+import { inVacation } from "./beach";
 
 /* ---------- per-day helpers ---------- */
 export function dayDone(d: DayRec, p: Progress): boolean {
@@ -113,7 +114,9 @@ export function computeStreak(p: Progress): number {
   let streak = 0;
   for (let i = past.length - 1; i >= 0; i--) {
     const d = past[i];
-    const isRest = d.items.length === 0;
+    // rest/free days AND seaside-break days count automatically — the streak
+    // pauses over a holiday, it never breaks.
+    const isRest = d.items.length === 0 || inVacation(d.date);
     if (isRest || dayDone(d, p)) streak++;
     else break;
   }
