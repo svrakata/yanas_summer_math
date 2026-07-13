@@ -1,6 +1,6 @@
 export type ItemDiff = "e" | "m" | "h"; // easy / medium / hard
 export type ItemType = "x" | "t"; // x = expression (calculation), t = textual (word problem)
-export type DayDiff = "easy" | "medium" | "hard" | "test" | "rest" | "travel" | "postponed";
+export type DayDiff = "easy" | "medium" | "hard" | "test" | "rest" | "travel" | "postponed" | "ill";
 export type DayType = "home" | "trip";
 export type Trip = "Sea" | "Mountain" | "Valencia";
 

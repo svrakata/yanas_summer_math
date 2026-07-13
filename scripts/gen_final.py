@@ -22,11 +22,14 @@ addhol(date(2026,8,11), date(2026,8,15), "Valencia", "free")  # 11-15 only, all 
 TRAVEL = {date(2026,7,4), date(2026,7,11), date(2026,7,19), date(2026,7,22), date(2026,7,29),
           date(2026,8,2), date(2026,8,11), date(2026,8,15)}
 
-# Sea-trip task days whose work is POSTPONED to August. Their tasks are pulled
-# into a backlog (data.postponed) to be rescheduled BY HAND with Yana — NOT
-# auto-distributed. The days themselves become free "to-do" markers (diff=postponed).
-POSTPONE = [date(2026,7,5), date(2026,7,6), date(2026,7,7),
-            date(2026,7,8), date(2026,7,9), date(2026,7,10)]
+# Off days that hold NO tasks: Yana was ill (Jul 2-3) and on the mountain
+# (Jul 20-21 days off). Together with the seaside (Jul 4-11) their work is not
+# lost — from July 2 on we BREAK the period pools and re-flow every remaining
+# workbook task EVENLY across the open working days up to Aug 31 (see REFLOW).
+ILL = {date(2026,7,2), date(2026,7,3)}
+VAC_FREE = {date(2026,7,20), date(2026,7,21)}   # Mountain days off
+RESUME = date(2026,7,13)      # first working day back (12th was another rest day)
+REFLOW_FROM = date(2026,7,2)  # re-plan everything from here to Aug 31
 
 PERIODS = [("P1",date(2026,6,20),date(2026,6,30)),
            ("P2",date(2026,7,1), date(2026,7,15)),
@@ -114,6 +117,7 @@ while d<=date(2026,8,31):
              "type":"trip" if name else "home",
              "kind":kind,  # light / free / None
              "travel":d in TRAVEL,  # transit day: gets no tasks
+             "ill":d in ILL,        # sick day: gets no tasks
              "items":[]}
     d+=timedelta(days=1)
 
@@ -148,13 +152,33 @@ test_days=[date(2026,8,20),date(2026,8,22),date(2026,8,24),date(2026,8,26),date(
 for td,(pg,r,d,t) in zip(test_days,TESTS):
     put(td,{"p":pg,"r":r,"n":1,"d":d,"t":t,"test":True})
 
-# ---------- pull Sea-trip tasks into the August backlog (held, not distributed) ----------
-postponed=[]
-for dt in POSTPONE:
-    for it in days[dt]["items"]:
-        postponed.append({**it, "from": days[dt]["date"], "dow": days[dt]["dow"]})
-    days[dt]["items"]=[]
-    days[dt]["postpone"]=True
+# ---------- REFLOW from July 2: break the period pools, re-plan the rest of summer ----------
+# Yana was ill (Jul 2-3), at the sea (Jul 4-11) and on the mountain (Jul 20-21).
+# Collect every remaining workbook task from Jul 2 on, restore curriculum (page)
+# order, and spread it EVENLY across the open working days up to Aug 31 — so the
+# freed-day load leaks forward into August instead of piling on any one day. Tests
+# stay fixed on their days.
+def first_num(r): return int(r.split(",")[0].split("-")[0])
+stream=[]
+for dt in sorted(days):
+    if dt < REFLOW_FROM: continue
+    rec=days[dt]
+    stream += [it for it in rec["items"] if not it.get("test")]
+    rec["items"]=[it for it in rec["items"] if it.get("test")]
+stream.sort(key=lambda it:(int(it["p"]), first_num(it["r"])))
+
+def is_open(dt):
+    if dt < RESUME: return False
+    if dt in TRAVEL or dt in ILL or dt in VAC_FREE: return False
+    if HOL.get(dt,(None,None))[1]=="free": return False               # Valencia holiday
+    if any(it.get("test") for it in days[dt]["items"]): return False   # test days
+    return True
+open_days=[dt for dt in sorted(days) if is_open(dt)]
+
+# Even fill across ALL open days to Aug 31. Re-split into small pieces first so
+# the spread is smooth (no single day spikes) and reaches the end of August.
+stream=[pc for it in stream for pc in split_block((it["p"],it["r"],it["d"],it["t"]),3)]
+place(stream, open_days)
 
 # ---------- finalize per-day fields ----------
 out=[]
@@ -169,7 +193,7 @@ for dt in sorted(days):
     # Day difficulty comes from the WORKLOAD (how many tasks that day),
     # not the per-task signature: more tasks = harder.
     if rec["travel"]: diff="travel"  # transit day — no tasks
-    elif rec.get("postpone"): diff="postponed"  # Sea-trip work moved to August backlog
+    elif rec.get("ill"): diff="ill"  # sick day — no tasks, work re-flowed forward
     elif istest: diff="test"
     elif not items: diff="rest"
     elif c<=4: diff="easy"      # light day
@@ -180,7 +204,7 @@ for dt in sorted(days):
     rec["label"]=" · ".join((it["r"] if it.get("test") else f"p.{it['p']} #{it['r']}") for it in items)
     rec.pop("kind",None)
     rec.pop("travel",None)
-    rec.pop("postpone",None)
+    rec.pop("ill",None)
     out.append(rec)
 
 # ---------- meta ----------
@@ -192,12 +216,13 @@ for n,s,e in PERIODS:
                  "trip":sum(1 for x in dd if x["type"]=="trip"),
                  "tasks":sum(x["count"] for x in dd)})
 
-json.dump({"days":out,"meta":meta,"postponed":postponed}, open("data/days.json","w"), ensure_ascii=False)
+json.dump({"days":out,"meta":meta}, open("data/days.json","w"), ensure_ascii=False)
 
 # ---------- report ----------
 tot=sum(x["count"] for x in out); tests=sum(1 for x in out if x["diff"]=="test")
-pcount=sum(p["n"] for p in postponed)
-print(f"TOTAL active tasks={tot}  tests={tests}  postponed(Sea→Aug)={pcount} over {len(POSTPONE)} days  (active+postponed={tot+pcount}, expect 358)")
+ill=sum(1 for x in out if x["diff"]=="ill")
+print(f"TOTAL tasks={tot}  tests={tests}  ill-days={ill}  (Jul2→Aug31 re-flowed evenly; expect 358)")
+print(f"re-flowed stream={len(stream)} pieces over {len(open_days)} open days")
 for n,s,e in PERIODS:
     dd=[x for x in out if x["period"]==n]
     hc=[x["count"] for x in dd if x["type"]=="home"]

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarClock, Check, Plane, Star, Sun } from "lucide-react";
+import { BedDouble, CalendarClock, Check, Plane, Star, Sun } from "lucide-react";
 import type { DayRec } from "@/lib/types";
 import { DIFF } from "@/lib/dayStyle";
 import { LocationIcon } from "./LocationIcon";
@@ -24,6 +24,7 @@ export function DayCell({
   const isTravel = day.diff === "travel";
   const isTest = day.diff === "test";
   const isPostponed = day.diff === "postponed";
+  const isIll = day.diff === "ill";
   const partial = doneCount > 0 && !done;
   const units = day.items.length || 1;
 
@@ -39,7 +40,7 @@ export function DayCell({
       transition={{ type: "spring", stiffness: 420, damping: 26 }}
       className="relative h-full w-full rounded-2xl outline-none focus-visible:ring-4 focus-visible:ring-indigo/40"
       aria-label={`${day.dow} ${day.dom} ${day.month}. ${
-        done ? "Done" : isFree ? "Free day" : isTravel ? "Travel day" : isPostponed ? "Sea trip — tasks saved for August" : `${day.count} tasks, ${s.label}`
+        done ? "Done" : isIll ? "Ill day — rest and recover" : isFree ? "Free day" : isTravel ? "Travel day" : isPostponed ? "Sea trip — tasks saved for August" : `${day.count} tasks, ${s.label}`
       }. Open day.`}
     >
       {/* ---------- MOBILE face (compact: number, then location + count) ---------- */}
@@ -64,6 +65,8 @@ export function DayCell({
           <LocationIcon trip={day.trip} size={10} />
           {done ? (
             <Check size={13} strokeWidth={3.5} />
+          ) : isIll ? (
+            <BedDouble size={12} strokeWidth={2.6} />
           ) : isFree ? (
             <Sun size={12} strokeWidth={2.6} />
           ) : isTravel ? (
@@ -113,6 +116,18 @@ export function DayCell({
                   <LocationIcon trip={day.trip} size={13} />
                 </span>
                 on the road
+              </span>
+            </>
+          ) : isIll ? (
+            <>
+              <span className="text-[10px] font-extrabold uppercase tracking-wide" style={{ color: s.color }}>
+                Poorly
+              </span>
+              <span className="flex items-center gap-1 text-[11px] font-bold text-inksoft">
+                <span style={{ color: s.color }}>
+                  <BedDouble size={13} strokeWidth={2.4} />
+                </span>
+                rest &amp; recover 💗
               </span>
             </>
           ) : isFree ? (
