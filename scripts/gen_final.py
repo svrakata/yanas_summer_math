@@ -12,14 +12,14 @@ def addhol(s, e, name, kind):
     while d <= e:
         HOL[d] = (name, kind); d += timedelta(days=1)
 addhol(date(2026,7,4),  date(2026,7,11), "Sea", "light")
-addhol(date(2026,7,19), date(2026,7,22), "Mountain", "light")
+addhol(date(2026,7,19), date(2026,7,21), "Mountain", "light")  # back on the road the 21st; 22nd is home
 addhol(date(2026,7,29), date(2026,8,2),  "Mountain", "light")
 addhol(date(2026,8,11), date(2026,8,15), "Valencia", "free")  # 11-15 only, all free
 
 # Travel days: in transit, NO maths possible. Their tasks are pulled and
 # redistributed across the remaining task days of the same period (kept at their
 # original easy/medium/hard difficulty — the other days just scale up to absorb them).
-TRAVEL = {date(2026,7,4), date(2026,7,11), date(2026,7,19), date(2026,7,22), date(2026,7,29),
+TRAVEL = {date(2026,7,4), date(2026,7,11), date(2026,7,19), date(2026,7,21), date(2026,7,29),
           date(2026,8,2), date(2026,8,11), date(2026,8,15)}
 
 # Off days that hold NO tasks: Yana was ill (Jul 2-3) and on the mountain
@@ -27,9 +27,12 @@ TRAVEL = {date(2026,7,4), date(2026,7,11), date(2026,7,19), date(2026,7,22), dat
 # lost — from July 2 on we BREAK the period pools and re-flow every remaining
 # workbook task EVENLY across the open working days up to Aug 31 (see REFLOW).
 ILL = {date(2026,7,2), date(2026,7,3)}
-VAC_FREE = {date(2026,7,20), date(2026,7,21)}   # Mountain days off
+VAC_FREE = {date(2026,7,20)}   # only the 20th is a mountain day off (21st is the return trip)
 RESUME = date(2026,7,13)      # first working day back (12th was another rest day)
 REFLOW_FROM = date(2026,7,2)  # re-plan everything from here to Aug 31
+# The 22nd is a home working day filled BY HAND (see fixup) — kept out of the
+# even re-flow so the rest of the approved distribution stays put.
+MANUAL_FILL = {date(2026,7,22)}
 
 PERIODS = [("P1",date(2026,6,20),date(2026,6,30)),
            ("P2",date(2026,7,1), date(2026,7,15)),
@@ -169,7 +172,7 @@ stream.sort(key=lambda it:(int(it["p"]), first_num(it["r"])))
 
 def is_open(dt):
     if dt < RESUME: return False
-    if dt in TRAVEL or dt in ILL or dt in VAC_FREE: return False
+    if dt in TRAVEL or dt in ILL or dt in VAC_FREE or dt in MANUAL_FILL: return False
     if HOL.get(dt,(None,None))[1]=="free": return False               # Valencia holiday
     if any(it.get("test") for it in days[dt]["items"]): return False   # test days
     return True
@@ -179,6 +182,42 @@ open_days=[dt for dt in sorted(days) if is_open(dt)]
 # the spread is smooth (no single day spikes) and reaches the end of August.
 stream=[pc for it in stream for pc in split_block((it["p"],it["r"],it["d"],it["t"]),3)]
 place(stream, open_days)
+
+# ---------- manual fixup: fill the 22nd from its neighbours, keep continuity ----------
+# The 22nd is a home day now. Re-lay the 16-23 run in curriculum order so the
+# 22nd continues exactly where the 18th leaves off, and 16/17/23 each shed 2
+# tasks. Every task range stays contiguous (no fragmenting, no page jumps).
+def expand_r(r):
+    out=[]
+    for part in r.split(","):
+        part=part.strip()
+        if "-" in part: a,b=part.split("-"); out+=list(range(int(a),int(b)+1))
+        else: out.append(int(part))
+    return out
+def collapse(atoms):
+    pieces=[]; i=0
+    while i<len(atoms):
+        j=i
+        while (j+1<len(atoms) and atoms[j+1]["p"]==atoms[i]["p"] and atoms[j+1]["d"]==atoms[i]["d"]
+               and atoms[j+1]["t"]==atoms[i]["t"] and atoms[j+1]["num"]==atoms[j]["num"]+1):
+            j+=1
+        nums=[atoms[k]["num"] for k in range(i,j+1)]
+        pieces.append({"p":atoms[i]["p"],"r":(f"{nums[0]}-{nums[-1]}" if len(nums)>1 else f"{nums[0]}"),
+                       "n":len(nums),"d":atoms[i]["d"],"t":atoms[i]["t"]})
+        i=j+1
+    return pieces
+SRC=[date(2026,7,16),date(2026,7,17),date(2026,7,18),date(2026,7,23)]  # page order, 22 empty
+RUN=[date(2026,7,16),date(2026,7,17),date(2026,7,18),date(2026,7,22),date(2026,7,23)]
+TARGETS=[6,6,7,6,6]   # 16/17/23 shed 2; 18 unchanged count; 22 = new 6-task medium day
+atoms=[]
+for dt in SRC:
+    for it in days[dt]["items"]:
+        atoms += [{"p":it["p"],"num":num,"d":it["d"],"t":it["t"]} for num in expand_r(it["r"])]
+    days[dt]["items"]=[]
+atoms.sort(key=lambda a:(int(a["p"]), a["num"]))
+i=0
+for dt,tgt in zip(RUN,TARGETS):
+    days[dt]["items"]=collapse(atoms[i:i+tgt]); i+=tgt
 
 # ---------- finalize per-day fields ----------
 out=[]
